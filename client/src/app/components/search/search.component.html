@@ -1,0 +1,119 @@
+<!-- client/src/app/components/search/search.component.html -->
+<div class="search-container">
+    <div class="search-header">
+      <h2>Find Recipes</h2>
+      <p>Search for recipes based on ingredients, meal type, or dietary preferences</p>
+    </div>
+    
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+    
+    <div class="search-form-container">
+      <form [formGroup]="searchForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="query">Search</label>
+              <input 
+                type="text" 
+                id="query" 
+                formControlName="query" 
+                class="form-control" 
+                placeholder="Enter ingredients or recipe name"
+              >
+            </div>
+          </div>
+          
+          <div class="col-md-2">
+            <div class="form-group">
+              <label for="diet">Diet</label>
+              <select id="diet" formControlName="diet" class="form-control">
+                <option value="">Any</option>
+                <option *ngFor="let diet of dietLabels" [value]="diet">
+                  {{ diet | titlecase }}
+                </option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="col-md-2">
+            <div class="form-group">
+              <label for="health">Health</label>
+              <select id="health" formControlName="health" class="form-control">
+                <option value="">Any</option>
+                <option *ngFor="let health of healthLabels" [value]="health">
+                  {{ health | titlecase }}
+                </option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="col-md-2">
+            <div class="form-group">
+              <label for="mealType">Meal Type</label>
+              <select id="mealType" formControlName="mealType" class="form-control">
+                <option value="">Any</option>
+                <option *ngFor="let meal of mealTypes" [value]="meal">
+                  {{ meal | titlecase }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group text-center">
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            <span *ngIf="isLoading" class="spinner-border spinner-border-sm mr-1"></span>
+            Search Recipes
+          </button>
+        </div>
+      </form>
+    </div>
+    
+    <div *ngIf="isLoading" class="text-center mt-4">
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+    
+    <div *ngIf="searchResults && !isLoading" class="search-results">
+      <h3 class="mb-4">Search Results</h3>
+      
+      <div *ngIf="searchResults.hits.length === 0" class="no-results">
+        <p>No recipes found. Try adjusting your search criteria.</p>
+      </div>
+      
+      <div class="row">
+        <div *ngFor="let hit of searchResults.hits" class="col-md-4 mb-4">
+          <div class="recipe-card">
+            <img [src]="hit.recipe.image" [alt]="hit.recipe.label" class="recipe-image">
+            <div class="recipe-info">
+              <h4 class="recipe-title">{{ hit.recipe.label }}</h4>
+              <p class="recipe-source">By {{ hit.recipe.source }}</p>
+              <div class="recipe-labels">
+                <span *ngFor="let dietLabel of hit.recipe.dietLabels" class="badge badge-success">
+                  {{ dietLabel }}
+                </span>
+                <span *ngFor="let healthLabel of hit.recipe.healthLabels.slice(0, 3)" class="badge badge-info">
+                  {{ healthLabel }}
+                </span>
+              </div>
+              <div class="recipe-actions">
+                <button class="btn btn-outline-primary btn-sm" [routerLink]="['/recipes', hit.recipe.uri.split('#recipe_')[1]]">
+                  View
+                </button>
+                <button class="btn btn-outline-success btn-sm" (click)="saveRecipe(hit.recipe)">
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="searchResults._links?.next" class="text-center mt-4">
+        <button class="btn btn-outline-primary">Load More</button>
+      </div>
+    </div>
+  </div>

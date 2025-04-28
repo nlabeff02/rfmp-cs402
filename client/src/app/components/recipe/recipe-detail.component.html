@@ -1,0 +1,132 @@
+<!-- client/src/app/components/recipe/recipe-detail.component.html -->
+<div class="recipe-detail-container">
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+    
+    <div *ngIf="isLoading" class="text-center mt-4">
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+    
+    <div *ngIf="!isLoading && recipe" class="recipe-content">
+      <div class="recipe-header">
+        <div class="back-button">
+          <a routerLink="/dashboard" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Back
+          </a>
+        </div>
+        
+        <div class="recipe-title-container">
+          <h1>{{ recipe.label }}</h1>
+          <p class="recipe-source">Recipe by <a [href]="recipe.url" target="_blank">{{ recipe.source }}</a></p>
+        </div>
+        
+        <div class="recipe-actions">
+          <button *ngIf="!isSaved" (click)="saveRecipe()" class="btn btn-success">
+            <i class="far fa-bookmark"></i> Save Recipe
+          </button>
+          <button *ngIf="isSaved" (click)="unsaveRecipe()" class="btn btn-outline-danger">
+            <i class="fas fa-bookmark"></i> Unsave Recipe
+          </button>
+        </div>
+      </div>
+      
+      <div class="recipe-main">
+        <div class="recipe-image-container">
+          <img [src]="recipe.image" [alt]="recipe.label" class="recipe-image">
+          
+          <div class="recipe-meta">
+            <div class="meta-item" *ngIf="recipe.yield">
+              <i class="fas fa-utensils"></i>
+              <span>{{ recipe.yield }} servings</span>
+            </div>
+            <div class="meta-item" *ngIf="recipe.totalTime">
+              <i class="far fa-clock"></i>
+              <span>{{ recipe.totalTime }} minutes</span>
+            </div>
+            <div class="meta-item" *ngIf="recipe.calories">
+              <i class="fas fa-fire"></i>
+              <span>{{ recipe.calories | number:'1.0-0' }} calories</span>
+            </div>
+          </div>
+          
+          <div class="recipe-labels">
+            <span *ngFor="let dietLabel of recipe.dietLabels" class="badge badge-success">
+              {{ dietLabel }}
+            </span>
+            <span *ngFor="let healthLabel of recipe.healthLabels" class="badge badge-info">
+              {{ healthLabel }}
+            </span>
+            <span *ngFor="let caution of recipe.cautions" class="badge badge-warning">
+              {{ caution }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="recipe-details">
+          <div class="ingredients-section">
+            <h2>Ingredients</h2>
+            <ul class="ingredients-list">
+              <li *ngFor="let ingredient of recipe.ingredientLines">{{ ingredient }}</li>
+            </ul>
+          </div>
+          
+          <div class="instructions-section">
+            <h2>Instructions</h2>
+            <p>
+              View the complete recipe with instructions at 
+              <a [href]="recipe.url" target="_blank" class="recipe-link">{{ recipe.source }}</a>
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="nutrition-section">
+        <h2>Nutrition Information</h2>
+        
+        <div class="nutrition-table">
+          <div class="nutrition-item">
+            <span class="nutrient-name">Calories</span>
+            <span class="nutrient-value">{{ recipe.calories | number:'1.0-0' }}</span>
+          </div>
+          
+          <div class="nutrition-item">
+            <span class="nutrient-name">Protein</span>
+            <span class="nutrient-value">{{ getNutrientValue('PROCNT') }}</span>
+          </div>
+          
+          <div class="nutrition-item">
+            <span class="nutrient-name">Fat</span>
+            <span class="nutrient-value">{{ getNutrientValue('FAT') }}</span>
+          </div>
+          
+          <div class="nutrition-item">
+            <span class="nutrient-name">Carbs</span>
+            <span class="nutrient-value">{{ getNutrientValue('CHOCDF') }}</span>
+          </div>
+          
+          <div class="nutrition-item">
+            <span class="nutrient-name">Fiber</span>
+            <span class="nutrient-value">{{ getNutrientValue('FIBTG') }}</span>
+          </div>
+          
+          <div class="nutrition-item">
+            <span class="nutrient-name">Sugar</span>
+            <span class="nutrient-value">{{ getNutrientValue('SUGAR') }}</span>
+          </div>
+          
+          <div class="nutrition-item">
+            <span class="nutrient-name">Sodium</span>
+            <span class="nutrient-value">{{ getNutrientValue('NA') }}</span>
+          </div>
+          
+          <div class="nutrition-item">
+            <span class="nutrient-name">Cholesterol</span>
+            <span class="nutrient-value">{{ getNutrientValue('CHOLE') }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

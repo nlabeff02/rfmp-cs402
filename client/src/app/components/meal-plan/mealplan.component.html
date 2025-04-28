@@ -1,0 +1,111 @@
+<!-- client/src/app/components/meal-plan/mealplan.component.html -->
+<div class="mealplan-container">
+    <div class="mealplan-header">
+      <h2>Weekly Meal Planner</h2>
+      <p>Plan your meals for the week using your saved recipes</p>
+    </div>
+    
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+    
+    <div *ngIf="isLoading" class="text-center mt-4">
+      <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+    
+    <div *ngIf="!isLoading && !currentMealPlan" class="no-mealplan">
+      <p>You don't have an active meal plan. Create one to get started!</p>
+      
+      <form [formGroup]="mealPlanForm" (ngSubmit)="createMealPlan()">
+        <div class="form-row">
+          <div class="form-group col-md-5">
+            <label for="startDate">Start Date</label>
+            <input 
+              type="date" 
+              id="startDate" 
+              formControlName="startDate" 
+              class="form-control"
+              [ngClass]="{'is-invalid': mealPlanForm.get('startDate')?.touched && mealPlanForm.get('startDate')?.invalid}"
+            >
+          </div>
+          
+          <div class="form-group col-md-5">
+            <label for="endDate">End Date</label>
+            <input 
+              type="date" 
+              id="endDate" 
+              formControlName="endDate" 
+              class="form-control"
+              [ngClass]="{'is-invalid': mealPlanForm.get('endDate')?.touched && mealPlanForm.get('endDate')?.invalid}"
+            >
+          </div>
+          
+          <div class="form-group col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary btn-block" [disabled]="mealPlanForm.invalid">
+              Create Plan
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div *ngIf="!isLoading && currentMealPlan && savedRecipes.length === 0" class="no-recipes">
+      <div class="alert alert-warning">
+        <p>You need to save some recipes before you can plan your meals.</p>
+        <button routerLink="/search" class="btn btn-primary mt-2">Search Recipes</button>
+      </div>
+    </div>
+    
+    <div *ngIf="!isLoading && currentMealPlan && savedRecipes.length > 0" class="mealplan-content">
+      <div class="mealplan-grid">
+        <!-- Days of the week header -->
+        <div class="mealplan-cell header-cell empty-cell"></div>
+        <div *ngFor="let day of daysOfWeek" class="mealplan-cell header-cell">
+          {{ day | titlecase }}
+        </div>
+        
+        <!-- Meal rows -->
+        <ng-container *ngFor="let mealType of mealTypes">
+          <!-- Meal type header -->
+          <div class="mealplan-cell meal-type-cell">
+            {{ mealType | titlecase }}
+          </div>
+          
+          <!-- Meals for each day -->
+          <div *ngFor="let day of daysOfWeek" class="mealplan-cell meal-cell">
+            <div *ngIf="getMealForDay(day, mealType); let meal" class="meal-assigned">
+              <div class="meal-card">
+                <img [src]="meal.image" [alt]="meal.label" class="meal-image">
+                <div class="meal-info">
+                  <h5 class="meal-title">{{ meal.label }}</h5>
+                  <div class="meal-actions">
+                    <button [routerLink]="['/recipes', meal.edamamId || meal._id]" class="btn btn-sm btn-outline-primary">
+                      View
+                    </button>
+                    <button (click)="removeMealFromPlan(day, mealType)" class="btn btn-sm btn-outline-danger">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div *ngIf="!getMealForDay(day, mealType)" class="meal-empty">
+              <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Add {{ mealType | titlecase }}
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <a *ngFor="let recipe of savedRecipes" class="dropdown-item" (click)="addMealToPlan(day, mealType, recipe.edamamId || recipe._id)">
+                    {{ recipe.label }}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
